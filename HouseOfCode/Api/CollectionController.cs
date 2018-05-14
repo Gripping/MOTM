@@ -261,6 +261,65 @@ namespace HouseOfCode.Api
             return rPlayers;
         }
 
+        [HttpGet]
+        public object GetMotm(int matchId)
+        {
+            var cs = Services.ContentService;
+
+            var votes = cs.GetChildren(1436);
+
+            List<int> playerVotes = new List<int>();
+            List<motm> MotmList = new List<motm>();
+
+
+            foreach(var vote in votes)
+            {
+                playerVotes.Add(int.Parse(vote.Properties["playerId"].Value.ToString()));
+            }
+
+            for (var i = 0; i < playerVotes.Count; i++)
+            {
+                if(MotmList.All(x => x.playerId != playerVotes[i]))
+                {
+                    motm nVote = new motm();
+                    nVote.playerId = playerVotes[i];
+                    nVote.increment = 1;
+                    MotmList.Add(nVote);
+                    playerVotes.Remove(playerVotes[i]);
+                }
+
+            }
+            
+
+            for(var x = 0; x < playerVotes.Count; x++)
+            {
+                int id = playerVotes[x];
+                for(var k = 0; k < MotmList.Count; k++)
+                {
+                    motm result = MotmList[k];
+                    MotmList.Remove(result);
+                    motm updateVote = new motm();
+                    updateVote.playerId = result.playerId;
+                    updateVote.increment = result.increment + 1;
+                    MotmList.Add(updateVote);
+                }
+            }
+
+            var MotmID = MotmList.Max(i => i.increment);
+
+            var winnerId = MotmList.Find(v => v.increment == MotmID);
+
+            var player = cs.GetById(winnerId.playerId);
+
+            motmWinner winner = new motmWinner();
+
+            winner.image = this.GetImg(player.Properties["playerPicture"].Value.ToString());
+            winner.name = player.Name;
+            winner.increment = winnerId.increment;
+
+            return winner;
+        }
+
         //gets sports for filter
         public List<sport> GetAllSports()
         {

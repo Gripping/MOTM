@@ -19,6 +19,19 @@ namespace HouseOfCode.Models
         public string deviceId { get; set; }
     }
 
+    public class motm
+    {
+        public int playerId { get; set; }
+        public int increment { get; set; }
+    }
+
+    public class motmWinner
+    {
+        public int increment { get; set; }
+        public string name { get; set; }
+        public object image { get; set; }
+    }
+
     public class newTeam
     {
         public string managerName { get; set; }
